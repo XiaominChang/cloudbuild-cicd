@@ -1,0 +1,41 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'australia-southeast1-docker.pkg.dev/udemy-mlops-492103/python-apps/demo-flask-app:latest',
+        '.'
+      ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'australia-southeast1-docker.pkg.dev/udemy-mlops-492103/python-apps/demo-flask-app:latest'
+      ]
+
+  - name: 'australia-southeast1-docker.pkg.dev/udemy-mlops-492103/python-apps/demo-flask-app:latest'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+          python -m pytest
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'demo-flask-app'
+      - '--image'
+      - 'australia-southeast1-docker.pkg.dev/udemy-mlops-492103/python-apps/demo-flask-app:latest'
+      - '--region'
+      - 'australia-southeast1'
+      - '--allow-unauthenticated'
+
+images:
+  - 'australia-southeast1-docker.pkg.dev/udemy-mlops-492103/python-apps/demo-flask-app:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
